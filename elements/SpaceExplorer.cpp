@@ -1,4 +1,3 @@
-
 #include "SpaceExplorer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,19 +5,12 @@
 #include <math.h>
 #include "SpaceElement.h"
 
-enum GameState { MENU, INFO, GAME, GAME_OVER };
+
 SpaceExplorer* SpaceExplorer::instance = nullptr;
 SpaceElement *OBJ_IDS;
-GameState currentState;
 
 
 SpaceExplorer::SpaceExplorer(int max_length, int max_height, const char* title) {
-    
-    currentLevel = 1;
-    levelDuration = 60000; // 60 seconds in milliseconds
-    levelStartTime = 0;
-    planetSpeed = 1.0f;
-
     world_length = max_length;
     world_height = max_height;
     window_title = title;
@@ -37,16 +29,11 @@ SpaceExplorer::SpaceExplorer(int max_length, int max_height, const char* title) 
 
     OBJ_IDS = new SpaceElement[100];
     MOVE_IDS = new SpaceElement[100];
-    currentState = MENU;
 }
 
 SpaceExplorer::~SpaceExplorer() {
     free(speedText);
     delete[] OBJ_IDS;
-}
-
-void SpaceExplorer::startLevelTimer() {
-    levelStartTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
 void SpaceExplorer::drawObject(GLuint elementID, int length, int height) {
@@ -73,12 +60,6 @@ void SpaceExplorer::drawObject_Coords(GLuint elementID, int length, int height, 
     glTexCoord2f(coords[6], coords[7]); glVertex3f(0, height, 0);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-}
-bool SpaceExplorer::checkCollision(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2) {
-    return (x1 < x2 + w2 &&
-            x1 + w1 > x2 &&
-            y1 < y2 + h2 &&
-            y1 + h1 > y2);
 }
 
 void SpaceExplorer::redimensionada(int width, int height) {
@@ -183,85 +164,51 @@ void SpaceExplorer::keyboardUp(unsigned char key, int x, int y) {
 void SpaceExplorer::keyboard(unsigned char key, int x, int y) {
     char mKey = (char)key;
 
-     if (currentState == MENU) {
-        if (key == 's' || key == 'S') {
-                currentState = GAME;
-                currentLevel = 1;
-                planetSpeed = 1.0f;
-                OBJ_IDS[4].subIdsMax = 3; // Reset to initial number of planets
-                // Reset planet positions
-                for (int i = 0; i < OBJ_IDS[4].subIdsMax; i++) {
-                    OBJ_IDS[4].SUB_IDS[i].posX = OBJ_IDS[4].SUB_IDS[i].genRandomCoord(0, world_length);
-                    OBJ_IDS[4].SUB_IDS[i].posY = OBJ_IDS[4].SUB_IDS[i].genRandomCoord(world_height, world_height * 2);
-                }
-                startLevelTimer();
-        } else if (key == 'i' || key == 'I') {
-            currentState = INFO;
-        }
-    } else if (currentState == INFO) {
-        if (key == 27) { // ESC key
-            currentState = MENU;
-        }
-    } else if (currentState == GAME) {
-        // Existing game controls
-        if (key == 27) { // ESC key
-            currentState = MENU;
-        } else { 
-            if (key == 119 || key == 87){ // W
-                //printf("\nPARA CIMA");
-                key_control = true;
-                posY +=1*speed;
-                img_index = 22;
-                glutPostRedisplay();
-                
-            }
-            if (key == 115 || key == 83){ // S
-                //printf("\nPARA BAIXO");
-                key_control = true;
-                posY -=1*speed;
-                img_index = 2;
-                glutPostRedisplay();
-                
-            }
-            if (key == 100 || key == 68){ // D
-                //printf("\nPARA DIREITA");
-                key_control = true;
-                posX +=1*speed;
-                img_index = 14;
-                glutPostRedisplay();
-                
-            }
-            if (key == 97 || key == 65){ // A
-                //printf("\nPARA ESQUERDA");
-                key_control = true;
-                posX -=1*speed;
-                img_index = 10;
-                glutPostRedisplay();
-                
-            }
-            if(key == 32){
-
-                printf("FIRE");
-
-            }
-
-            if (key == ' ') {
-                drawSquare = true;
-            }
-
-            if (key == 27) {
-                exit(0);
-            }
-        }
+    if (key == 119 || key == 87){ // W
+        //printf("\nPARA CIMA");
+        key_control = true;
+        posY +=1*speed;
+        img_index = 22;
+        glutPostRedisplay();
+        
     }
-    else if (currentState == GAME_OVER){
-        if (key == 27) { // ESC key
-            currentState = MENU;
-            posX = world_length / 2.0f;
-            posY = world_height / 2.0f;
-        }
+    if (key == 115 || key == 83){ // S
+        //printf("\nPARA BAIXO");
+        key_control = true;
+        posY -=1*speed;
+        img_index = 2;
+        glutPostRedisplay();
+        
     }
-    glutPostRedisplay();
+    if (key == 100 || key == 68){ // D
+        //printf("\nPARA DIREITA");
+        key_control = true;
+        posX +=1*speed;
+        img_index = 14;
+        glutPostRedisplay();
+        
+    }
+    if (key == 97 || key == 65){ // A
+        //printf("\nPARA ESQUERDA");
+        key_control = true;
+        posX -=1*speed;
+        img_index = 10;
+        glutPostRedisplay();
+        
+    }
+    if(key == 32){
+
+        printf("FIRE");
+
+    }
+
+    if (key == ' ') {
+        drawSquare = true;
+    }
+
+    if (key == 27) {
+        exit(0);
+    }
 }
 
 void SpaceExplorer::xyControl(int IMG_SIZE) {
@@ -318,25 +265,9 @@ void SpaceExplorer::desenha() {
     drawObject_Coords(OBJ_IDS[1].elementID, 80, 80, Coords);
     glPopMatrix();
 
-    displayText(GLUT_BITMAP_8_BY_13, "TARCISIO B. PRATES", world_length-450, world_height-20);
+    displayText(GLUT_BITMAP_8_BY_13, "TARCISIO B. PRATES", world_length-450, world_height-40);
 
     displayText(GLUT_BITMAP_8_BY_13, speedText, world_length-200, world_height-40);
-
-    char planetText[30];
-    //sprintf(planetText, "Planets: %d", OBJ_IDS[4].subIdsMax);
-    displayText(GLUT_BITMAP_8_BY_13, planetText, 15, world_height-60);
-
-
-    // Display current level
-    char levelText[20];
-    sprintf(levelText, "Level: %d", currentLevel);
-    displayText(GLUT_BITMAP_8_BY_13, levelText, 10, world_height-80);
-
-    // Display time remaining
-    int timeRemaining = (levelDuration - (glutGet(GLUT_ELAPSED_TIME) - levelStartTime)) / 1000;
-    char timeText[20];
-    sprintf(timeText, "Time: %d", timeRemaining);
-    displayText(GLUT_BITMAP_8_BY_13, timeText, 10, world_height - 100);
 
     
     glPushMatrix();
@@ -362,13 +293,6 @@ void SpaceExplorer::desenha() {
         Coords = calculateCoords(OBJ_IDS[4].subIds[index], 4);
         drawObject_Coords(OBJ_IDS[4].elementID, 80, 80, Coords);
         glPopMatrix();
-
-        if (checkCollision(posX, posY, 80, 80, 
-                           OBJ_IDS[4].SUB_IDS[index].posX, OBJ_IDS[4].SUB_IDS[index].posY, 80, 80)) {
-            // Collision detected!
-            handleCollision();
-        }
-
     }
 
 
@@ -376,25 +300,18 @@ void SpaceExplorer::desenha() {
 
 }
 
-void SpaceExplorer::updateBackground(int id, SpaceElement *PARENT) {
-    PARENT->SUB_IDS[id].posY = PARENT->SUB_IDS[id].posY - (1 * planetSpeed);
+void SpaceExplorer::updateBackground(int id, SpaceElement *PARENT){
+    
 
-    if (PARENT->SUB_IDS[id].posY <= 0) {
+    PARENT->SUB_IDS[id].posY = PARENT->SUB_IDS[id].posY - (1*speed);
+
+    if (PARENT->SUB_IDS[id].posY <= 0){
+
         PARENT->SUB_IDS[id].posX = PARENT->SUB_IDS[id].genRandomCoord(0, world_length);
-        PARENT->SUB_IDS[id].posY = PARENT->SUB_IDS[id].genRandomCoord(world_height, world_height * 2);
+        PARENT->SUB_IDS[id].posY = PARENT->SUB_IDS[id].genRandomCoord(world_length, world_length*2);
     }
-}
+    
 
-void SpaceExplorer::handleCollision() {
-    currentState = GAME_OVER;
-    currentLevel = 1;
-    planetSpeed = 1.0f;
-    OBJ_IDS[4].subIdsMax = 3; // Reset to initial number of planets
-    // Reset planet positions
-    for (int i = 0; i < OBJ_IDS[4].subIdsMax; i++) {
-        OBJ_IDS[4].SUB_IDS[i].posX = OBJ_IDS[4].SUB_IDS[i].genRandomCoord(0, world_length);
-        OBJ_IDS[4].SUB_IDS[i].posY = OBJ_IDS[4].SUB_IDS[i].genRandomCoord(world_height, world_height * 2);
-    }
 }
 
 void  SpaceExplorer::checkColision(){
@@ -421,37 +338,14 @@ void SpaceExplorer::backgroudClock(int value) {
     
 }
 
-void SpaceExplorer::drawGameOver() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    // Draw the Game Over texture
-    drawObject(OBJ_IDS[8].elementID, world_length, world_height);
-    
-    // You can add additional text if you want
-    displayText(GLUT_BITMAP_8_BY_13, "Press ESC to return to menu", world_length/2 - 100, 50);
+void SpaceExplorer::idle() {
 
-    glutSwapBuffers();
+    glutPostRedisplay();
 }
-
-// void SpaceExplorer::idle() {
-
-//     glutPostRedisplay();
-// }
 
 void SpaceExplorer::desenhaWrapper() {
     if (instance) {
-        switch(instance->currentState) {
-            case MENU:
-            case INFO:
-                instance->drawMenu();
-                break;
-            case GAME:
-                instance->desenha();
-                break;
-            case GAME_OVER:
-                instance->drawGameOver();
-                break;
-        }
+        instance->desenha();
     }
 }
 
@@ -500,6 +394,7 @@ void SpaceExplorer::inicializa() {
             x_wing.elementID = x_wing.generate();
             OBJ_IDS[1] = x_wing;
 
+
             SpaceElement up_button("./img/up.png", "X-WING"); 
             up_button.elementID = up_button.generate();
             OBJ_IDS[2] = up_button;
@@ -512,72 +407,17 @@ void SpaceExplorer::inicializa() {
             planets.elementID = planets.generate();
             OBJ_IDS[4] = planets;
             
+            int v[3] = {0, 1, 5};
+            OBJ_IDS[4].setSubIds(v, 3);
+
             SpaceElement shot("./img/shot.png", "shot"); 
             shot.elementID = shot.generate();
             OBJ_IDS[5] = shot;
 
-            SpaceElement menuBackground("./img/menu.png", "MENU");
-            menuBackground.elementID = menuBackground.generate();
-            OBJ_IDS[6] = menuBackground;
-
-            SpaceElement infoBackground("./img/info.png", "INFO");
-            infoBackground.elementID = infoBackground.generate();
-            OBJ_IDS[7] = infoBackground;
-
-            SpaceElement gameOverScreen("./img/gameover.png", "GAME_OVER");
-            gameOverScreen.elementID = gameOverScreen.generate();
-            OBJ_IDS[8] = gameOverScreen;
-
-            int v[16] = {0, 1, 2, 3, 5, 6, 7, 8 ,9 ,10,11,12,13,14,15};
-            OBJ_IDS[4].setSubIds(v, 16);
-
             int s[1] = {0};
             OBJ_IDS[5].setSubIds(s, 1);
 
-            // strcpy(speedText,"SPEED: 1");
-}
-
-void SpaceExplorer::idle() {
-    if (currentState == GAME) {
-        updateLevel();
-    }
-    glutPostRedisplay();
-}
-
-void SpaceExplorer::updateLevel() {
-    int currentTime = glutGet(GLUT_ELAPSED_TIME);
-    if (currentTime - levelStartTime >= levelDuration) {
-        currentLevel++;
-        startLevelTimer(); // Reset the timer for the new level
-
-        // Increase planet speed
-        planetSpeed += 1.5f;
-        speed+=2;
-
-        // Add a new planet
-        if (OBJ_IDS[4].subIdsMax < 16) { 
-            int newPlanetIndex = OBJ_IDS[4].subIdsMax;
-            OBJ_IDS[4].SUB_IDS[newPlanetIndex].posX = OBJ_IDS[4].SUB_IDS[newPlanetIndex].genRandomCoord(0, world_length);
-            OBJ_IDS[4].SUB_IDS[newPlanetIndex].posY = OBJ_IDS[4].SUB_IDS[newPlanetIndex].genRandomCoord(world_height, world_height * 2);
-            //OBJ_IDS[4].subIds[newPlanetIndex] = rand() % 16; 
-            OBJ_IDS[4].subIdsMax++;
-        }
-
-        //printf("Level %d: %d planets, speed %.1f\n", currentLevel, OBJ_IDS[4].subIdsMax, planetSpeed);
-    }
-}
-
-void SpaceExplorer::drawMenu() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    if (currentState == MENU) {
-        drawObject(OBJ_IDS[6].elementID, world_length, world_height);
-
-    } else if (currentState == INFO) {
-        drawObject(OBJ_IDS[7].elementID, world_length, world_height);
-    }
-
-    glutSwapBuffers();
+            strcpy(speedText,"SPEED: 1");
 }
 
 int SpaceExplorer::show(int argc, char** argv) {
@@ -593,9 +433,6 @@ int SpaceExplorer::show(int argc, char** argv) {
     instance = this;
 
     inicializa();
-    currentState = MENU;
-    
-    startLevelTimer();
 
     glutDisplayFunc(desenhaWrapper);
     glutReshapeFunc(redimensionadaWrapper);
